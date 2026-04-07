@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import DoctorProfile from '@/models/DoctorProfile';
 import User from '@/models/User';
@@ -27,8 +28,18 @@ export async function PATCH(
 
     await connectDB();
 
-    const doctorProfile = await DoctorProfile.findById(id).populate('userId', 'name email');
+    console.log(`Processing doctor approval for ID: ${id}, status: ${status}`);
+
+    // Robust search: try to find by Profile _id OR User _id
+    const doctorProfile = await DoctorProfile.findOne({
+      $or: [
+        { _id: mongoose.isValidObjectId(id) ? id : null },
+        { userId: mongoose.isValidObjectId(id) ? id : null }
+      ]
+    }).populate('userId', 'name email');
+
     if (!doctorProfile) {
+      console.warn(`Doctor profile not found for ID: ${id}`);
       return Response.json(
         { success: false, error: 'Doctor profile not found' },
         { status: 404 }
