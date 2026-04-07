@@ -6,11 +6,10 @@ import { getAvailableSlots } from '@/lib/slots';
  */
 export async function GET(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const params = await context.params;
+    const { id } = await params;
     const { searchParams } = request.nextUrl;
     const date = searchParams.get('date');
 
@@ -21,7 +20,7 @@ export async function GET(
       );
     }
 
-    const slots = await getAvailableSlots(params.id, date);
+    const slots = await getAvailableSlots(id, date);
 
     return Response.json({
       success: true,

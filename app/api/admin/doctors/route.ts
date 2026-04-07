@@ -39,13 +39,8 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * PATCH — Approve or Reject a doctor registration
+ * PATCH — Approve or Reject a doctor registration (Handled in [id]/approve)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-    // This will be handled in a dynamic route [id]/approve
-    // For now, I'll put the logic here or in the specific folder as per the structure.
-    return Response.json({ success: false, error: 'Use /api/admin/doctors/[id]/approve instead' });
+export async function PATCH(request: NextRequest) {
+  return Response.json({ success: false, error: 'Use /api/admin/doctors/[id]/approve instead' });
 }

@@ -10,9 +10,10 @@ import { format } from 'date-fns';
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = getAuthUser(request);
     requireRole(user, 'doctor', 'admin');
 
@@ -26,7 +27,7 @@ export async function PATCH(
 
     await connectDB();
 
-    const appointment = await Appointment.findById(params.id);
+    const appointment = await Appointment.findById(id);
     if (!appointment) {
       return Response.json(
         { success: false, error: 'Appointment not found' },
@@ -70,15 +71,16 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = getAuthUser(request);
     const { reason } = await request.json();
 
     await connectDB();
 
-    const appointment = await Appointment.findById(params.id)
+    const appointment = await Appointment.findById(id)
       .populate('patientId', 'name email')
       .populate({
         path: 'doctorId',

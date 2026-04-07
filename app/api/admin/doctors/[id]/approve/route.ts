@@ -10,14 +10,13 @@ import { sendDoctorApprovalEmail, sendDoctorRejectionEmail } from '@/lib/mail';
  */
 export async function PATCH(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = getAuthUser(request);
     requireRole(user, 'admin');
 
-    const params = await context.params;
+    const { id } = await params;
     const { status, reason } = await request.json();
     if (!status || !['approved', 'rejected'].includes(status)) {
       return Response.json(
@@ -28,7 +27,7 @@ export async function PATCH(
 
     await connectDB();
 
-    const doctorProfile = await DoctorProfile.findById(params.id).populate('userId', 'name email');
+    const doctorProfile = await DoctorProfile.findById(id).populate('userId', 'name email');
     if (!doctorProfile) {
       return Response.json(
         { success: false, error: 'Doctor profile not found' },
