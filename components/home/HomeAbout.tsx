@@ -3,8 +3,20 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { ApiResponse } from '@/types';
 
 export default function HomeAbout() {
+  const { data: settings } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const { data } = await axios.get<ApiResponse<any>>('/api/admin/settings');
+      return data.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
   return (
     <section className="py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,11 +60,8 @@ export default function HomeAbout() {
                   Proud to be one of the nations <br />
                   <span className="text-primary-600 underline decoration-accent-yellow/30 underline-offset-8">best</span>
                 </h2>
-                <p className="text-slate-500 text-lg leading-relaxed">
-                   For 30 Years in a row, U.S News & World Report has recognised us as one of the best publics hospitals in the Nation and #1 in Texas.
-                </p>
-                <p className="text-slate-500 text-lg leading-relaxed">
-                   Our Best is something we strive for each day, caring for our patients—not looking back at what we can accomplished but towards what we can do tommorow. Providing the best.
+                <p className="text-slate-500 text-lg leading-relaxed whitespace-pre-wrap">
+                   {settings?.aboutText || "For 30 Years in a row, U.S News & World Report has recognised us as one of the best publics hospitals in the Nation and #1 in Texas.\n\nOur Best is something we strive for each day, caring for our patients—not looking back at what we can accomplished but towards what we can do tommorow. Providing the best."}
                 </p>
              </div>
              

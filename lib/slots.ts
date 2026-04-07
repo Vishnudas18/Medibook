@@ -30,23 +30,36 @@ function compareTime(a: string, b: string): number {
  */
 function isTimeInPast(time: string, dateStr: string): boolean {
   const now = new Date();
-  const today = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
 
-  if (dateStr !== today) return false;
+  // If the date is after today, it's never in the past
+  if (dateStr > todayStr) return false;
+  // If the date is before today, it's always in the past
+  if (dateStr < todayStr) return true;
 
+  // If it is today, check the time
   const [h, m] = time.split(':').map(Number);
-  const slotTime = new Date();
-  slotTime.setHours(h, m, 0, 0);
+  const slotTime = new Date(year, now.getMonth(), now.getDate(), h, m, 0, 0);
 
-  // Add 30 min buffer — don't allow booking slots starting in the next 30 minutes
+  // Add 30 min buffer
   const bufferTime = new Date(now.getTime() + 30 * 60 * 1000);
   return slotTime <= bufferTime;
 }
 
+const DEFAULT_AVAILABILITY = {
+  startTime: '09:00',
+  endTime: '17:00',
+  slotDuration: 30,
+  isActive: true,
+};
+
 /**
  * Generate available slots for a doctor on a given date
  *
- * 1. Find availability for that day of week
+ * 1. Find availability for that day of week (or use default)
  * 2. Check leave dates
  * 3. Generate all possible slots
  * 4. Remove booked slots
@@ -58,24 +71,26 @@ export async function getAvailableSlots(
 ): Promise<TimeSlot[]> {
   await connectDB();
 
-  const date = new Date(dateStr);
-  const dayOfWeek = date.getDay();
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+  const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+  const dayOfWeek = startOfDay.getDay();
 
   // 1. Find availability for this day of week
-  const availability = await Availability.findOne({
+  const availabilityData = await Availability.findOne({
     doctorId,
     dayOfWeek,
-    isActive: true,
   }).lean();
 
-  if (!availability) return [];
+  // "Open by Default" Logic:
+  // - If no record exists: use standard 09:00 - 17:00
+  // - If record exists but is inactive: day is blocked
+  // - If record exists and is active: use record settings
+  if (availabilityData && !availabilityData.isActive) return [];
+  
+  const availability = availabilityData || DEFAULT_AVAILABILITY;
 
   // 2. Check if doctor is on leave
-  const startOfDay = new Date(dateStr);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(dateStr);
-  endOfDay.setHours(23, 59, 59, 999);
-
   const leaveDate = await LeaveDate.findOne({
     doctorId,
     date: { $gte: startOfDay, $lte: endOfDay },

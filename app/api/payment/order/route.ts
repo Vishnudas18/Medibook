@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isMockMode = process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock';
     const isRazorpayConfigured = 
       process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('your_');
     const isRedisConfigured = 
@@ -48,11 +49,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Check if already booked in DB
-    const startOfDate = new Date(date);
-    startOfDate.setHours(0, 0, 0, 0);
-    const endOfDate = new Date(date);
-    endOfDate.setHours(23, 59, 59, 999);
+    // 2. Check if already booked in DB (Robust Date Parsing)
+    const [year, month, day] = date.split('-').map(Number);
+    const startOfDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const endOfDate = new Date(year, month - 1, day, 23, 59, 59, 999);
 
     const existingAppointment = await Appointment.findOne({
       doctorId,
@@ -70,15 +70,16 @@ export async function POST(request: NextRequest) {
 
     const amount = doctor.consultationFee * 100; // in paise
 
-    if (!isRazorpayConfigured) {
-      console.log('Using dummy payment flow because true Razorpay keys are missing.');
+    // Use Mock Flow if requested or if keys are missing
+    if (isMockMode || !isRazorpayConfigured) {
+      console.log(`Using ${isMockMode ? 'MOCK' : 'DUMMY'} payment flow.`);
       return Response.json({
         success: true,
         data: {
-          orderId: `order_dummy_${Date.now()}`,
+          orderId: `order_mock_${Date.now()}`,
           amount,
           currency: 'INR',
-          key: 'dummy_key',
+          key: 'mock_key',
           isDummy: true,
         },
       });
@@ -90,19 +91,12 @@ export async function POST(request: NextRequest) {
       const locked = await isSlotLocked(doctorId, date, startTime);
       if (locked) {
         return Response.json(
-          { success: false, error: 'This slot is currently being booked by someone else. Please try again in 5 minutes.' },
+          { success: false, error: 'This slot is currently being booked by someone else.' },
           { status: 409 }
         );
       }
 
-      // 4. Try to lock the slot
-      const lockSuccess = await lockSlot(doctorId, date, startTime);
-      if (!lockSuccess) {
-        return Response.json(
-          { success: false, error: 'Failed to secure slot. Please try again.' },
-          { status: 409 }
-        );
-      }
+      await lockSlot(doctorId, date, startTime);
     }
 
     // 5. Create Razorpay order
@@ -110,12 +104,7 @@ export async function POST(request: NextRequest) {
       amount,
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
-      notes: {
-        doctorId,
-        patientId: user.userId,
-        date,
-        startTime,
-      },
+      notes: { doctorId, patientId: user.userId, date, startTime },
     };
 
     const order = await razorpay.orders.create(options);

@@ -14,10 +14,15 @@ import {
   CheckCircle2, 
   User, 
   Stethoscope, 
-  ReceiptIndianRupee 
+  ReceiptIndianRupee,
+  FileText,
+  Pill,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import ReviewDialog from '@/components/patient/ReviewDialog';
+import PrescriptionDialog from '@/components/doctor/PrescriptionDialog';
+import { Star } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,6 +75,8 @@ export default function AppointmentCard({
 
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [isPrescriptionDialogOpen, setIsPrescriptionDialogOpen] = useState(false);
   const [targetStatus, setTargetStatus] = useState<AppointmentStatus | null>(null);
 
   const config = statusConfig[status];
@@ -92,55 +99,72 @@ export default function AppointmentCard({
           )} />
 
           <div className="flex-1 p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-white ring-1 ring-slate-100 shadow-sm">
+            <div className="flex flex-col lg:flex-row items-start justify-between gap-6 mb-6">
+              <div className="flex items-center gap-4 w-full lg:w-auto">
+                <Avatar className="h-14 w-14 border-2 border-white ring-1 ring-slate-100 shadow-sm shrink-0">
                   <AvatarImage src={userRole === 'patient' ? doctorUser.avatar : patient.avatar} />
                   <AvatarFallback className="bg-primary-50 text-xl font-bold text-primary-700">
                     {(userRole === 'patient' ? doctorUser.name : patient.name)?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-700 transition-colors">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-700 transition-colors truncate">
                     {userRole === 'patient' ? `Dr. ${doctorUser.name}` : patient.name}
                   </h3>
-                  <p className="text-sm text-slate-500 flex items-center gap-1.5 font-medium">
+                  <p className="text-sm text-slate-500 flex items-center gap-1.5 font-medium truncate">
                     {userRole === 'patient' ? (
-                      <><Stethoscope className="w-3.5 h-3.5 text-primary-600" /> {doctor.specialization}</>
+                      <><Stethoscope className="w-3.5 h-3.5 text-primary-600 shrink-0" /> <span className="truncate">{doctor.specialization}</span></>
                     ) : (
-                      <><User className="w-3.5 h-3.5 text-slate-400" /> Patient</>
+                      <><User className="w-3.5 h-3.5 text-slate-400 shrink-0" /> Patient</>
                     )}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Badge className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider gap-1.5 border", config.color)}>
-                  <StatusIcon className="w-3 h-3" />
-                  {config.label}
-                </Badge>
-
-                {isPaid && (
-                  <Badge variant="outline" className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50/50 text-emerald-600 border-emerald-100">
-                    Paid
+              <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider gap-1.5 border whitespace-nowrap", config.color)}>
+                    <StatusIcon className="w-3 h-3" />
+                    {config.label}
                   </Badge>
-                )}
+
+                  {isPaid && (
+                    <Badge variant="outline" className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50/50 text-emerald-600 border-emerald-100 whitespace-nowrap">
+                      Paid
+                    </Badge>
+                  )}
+
+                  {userRole === 'doctor' && status === 'completed' && (
+                    <Badge variant="outline" className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary-50/50 text-primary-600 border-primary-100 whitespace-nowrap">
+                      Prescription Issued
+                    </Badge>
+                  )}
+                </div>
 
                 {(canCancel || canUpdateStatus) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100 transition-colors">
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 transition-colors shrink-0">
                         <MoreVertical className="w-4 h-4 text-slate-400" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-200">
                       {canUpdateStatus && (
                         <>
-                          <DropdownMenuItem onClick={() => { setTargetStatus('completed'); setIsStatusDialogOpen(true); }} className="gap-2 focus:bg-emerald-50 focus:text-emerald-700">
-                            <CheckCircle2 className="w-4 h-4" /> Mark Completed
-                          </DropdownMenuItem>
+                          {status === 'confirmed' ? (
+                            <DropdownMenuItem onClick={() => setIsPrescriptionDialogOpen(true)} className="gap-2 focus:bg-emerald-50 focus:text-emerald-700">
+                              <Pill className="w-4 h-4" /> Issue Prescription
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onClick={() => { setTargetStatus('completed'); setIsStatusDialogOpen(true); }} className="gap-2 focus:bg-emerald-50 focus:text-emerald-700">
+                              <CheckCircle2 className="w-4 h-4" /> Mark Completed
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => { setTargetStatus('no-show'); setIsStatusDialogOpen(true); }} className="gap-2">
                             <AlertCircle className="w-4 h-4" /> Mark No Show
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => window.location.href = `/doctor/patients/${patient._id}`} className="gap-2">
+                            <FileText className="w-4 h-4" /> View Patient History
                           </DropdownMenuItem>
                         </>
                       )}
@@ -155,7 +179,7 @@ export default function AppointmentCard({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-50">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
                   <Calendar className="w-5 h-5" />
@@ -176,7 +200,7 @@ export default function AppointmentCard({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-1">
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
                   <Phone className="w-5 h-5" />
                 </div>
@@ -200,9 +224,40 @@ export default function AppointmentCard({
                 </div>
               </div>
             )}
+
+            {userRole === 'patient' && status === 'completed' && (
+              <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between p-4 rounded-2xl bg-primary-50 border border-primary-100 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm flex-shrink-0">
+                    <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">How was your visit?</p>
+                    <p className="text-xs text-slate-500 font-medium">Share your feedback to help others</p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => setIsReviewDialogOpen(true)}
+                  className="w-full md:w-auto rounded-xl font-bold bg-white text-primary-700 border-primary-100 hover:bg-primary-50 items-center gap-2 shadow-sm"
+                  variant="outline"
+                  size="sm"
+                >
+                  <Star className="w-4 h-4" /> Rate Doctor
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
+
+      {userRole === 'patient' && (
+        <ReviewDialog 
+          isOpen={isReviewDialogOpen}
+          onOpenChange={setIsReviewDialogOpen}
+          appointmentId={appointment._id}
+          doctorName={doctorUser.name}
+        />
+      )}
 
       <ConfirmDialog
         isOpen={isCancelDialogOpen}
@@ -226,6 +281,15 @@ export default function AppointmentCard({
           setIsStatusDialogOpen(false);
         }}
       />
+
+      {userRole === 'doctor' && (
+        <PrescriptionDialog
+          isOpen={isPrescriptionDialogOpen}
+          onOpenChange={setIsPrescriptionDialogOpen}
+          appointmentId={appointment._id}
+          patientName={patient.name}
+        />
+      )}
     </Card>
   );
 }

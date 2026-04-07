@@ -106,6 +106,35 @@ export interface ILeaveDate {
   createdAt: Date;
 }
 
+export interface IReview {
+  _id: string;
+  patientId: string | IUser;
+  doctorId: string | IDoctorProfile;
+  appointmentId: string | IAppointment;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+}
+
+export interface IMedicine {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+}
+
+export interface IPrescription {
+  _id: string;
+  appointmentId: string | IAppointment;
+  patientId: string | IUser;
+  doctorId: string | IDoctorProfile;
+  medicines: IMedicine[];
+  advice: string;
+  nextFollowUp: Date;
+  createdAt: Date;
+}
+
 // ========================
 // API Response Types
 // ========================

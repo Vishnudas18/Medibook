@@ -87,16 +87,17 @@ export default function AdminAppointmentsPage() {
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden min-h-[400px]">
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="border-slate-100 hover:bg-transparent">
-              <TableHead className="py-5 font-bold text-slate-400 uppercase text-[10px] tracking-widest pl-8">Patient Details</TableHead>
-              <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Doctor</TableHead>
-              <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Schedule</TableHead>
-              <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Status</TableHead>
-              <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Payment</TableHead>
-            </TableRow>
-          </TableHeader>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50/50">
+              <TableRow className="border-slate-100 hover:bg-transparent">
+                <TableHead className="py-5 font-bold text-slate-400 uppercase text-[10px] tracking-widest pl-8 min-w-[220px]">Patient Details</TableHead>
+                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest min-w-[180px]">Doctor</TableHead>
+                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest min-w-[150px]">Schedule</TableHead>
+                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest min-w-[120px]">Status</TableHead>
+                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest min-w-[100px]">Payment</TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {isLoading ? (
               [...Array(6)].map((_, i) => (
@@ -194,5 +195,6 @@ export default function AdminAppointmentsPage() {
         </Table>
       </div>
     </div>
+  </div>
   );
 }

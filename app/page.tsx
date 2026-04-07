@@ -1,11 +1,41 @@
+'use client';
+
 import Link from "next/link";
 import HomeHero from "@/components/home/HomeHero";
 import HomeAbout from "@/components/home/HomeAbout";
 import HomeServices from "@/components/home/HomeServices";
 import HomeVirtual from "@/components/home/HomeVirtual";
 import HomeDoctors from "@/components/home/HomeDoctors";
+import HomeTestimonials from "@/components/home/HomeTestimonials";
+import HomeFAQ from "@/components/home/HomeFAQ";
+import HomeBlog from "@/components/home/HomeBlog";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { ApiResponse } from '@/types';
 
 export default function HomePage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { data: settings } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const { data } = await axios.get<ApiResponse<any>>('/api/admin/settings');
+      return data.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+
+  const navLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Find a Doctor', href: '/patient/doctors' },
+    { label: 'Services', href: '/#services' },
+    { label: 'Articles', href: '/#blog' },
+    { label: 'Contact', href: '/#faq' },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -22,18 +52,18 @@ export default function HomePage() {
             </Link>
             
             <div className="hidden md:flex items-center gap-8">
-              {['Home', 'Find a Doctor', 'Services', 'Contact'].map(item => (
+              {navLinks.map(item => (
                 <Link 
-                  key={item} 
-                  href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`}
+                  key={item.label} 
+                  href={item.href}
                   className="text-sm font-bold text-slate-600 hover:text-primary-600 transition-colors"
                 >
-                  {item}
+                  {item.label}
                 </Link>
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4">
               <Link
                 href="/login"
                 className="px-6 py-2.5 text-sm font-bold text-slate-900 hover:text-primary-600 transition-colors"
@@ -47,8 +77,52 @@ export default function HomePage() {
                 Sign Up
               </Link>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 shadow-2xl animate-fade-in">
+            <div className="px-6 py-8 space-y-6">
+              {navLinks.map(item => (
+                <Link 
+                  key={item.label} 
+                  href={item.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block text-lg font-bold text-slate-900 hover:text-primary-600 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-6 border-t border-slate-50 flex flex-col gap-4">
+                <Link
+                  href="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full py-4 text-center text-lg font-bold text-slate-900 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full py-4 text-center text-lg font-bold text-white bg-primary-600 rounded-2xl hover:bg-primary-700 shadow-xl shadow-primary-600/20 transition-all"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}
@@ -56,6 +130,9 @@ export default function HomePage() {
         <HomeHero />
         <HomeAbout />
         <HomeServices />
+        <HomeTestimonials />
+        <HomeBlog />
+        <HomeFAQ />
         <HomeVirtual />
         <HomeDoctors />
       </main>
@@ -86,11 +163,10 @@ export default function HomePage() {
               </ul>
             </div>
             <div className="text-left">
-              <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Company</h4>
-              <ul className="space-y-4 text-sm">
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">About Us</Link></li>
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">News</Link></li>
+              <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact Us</h4>
+              <ul className="space-y-4 text-sm font-medium">
+                <li><a href={`mailto:${settings?.contactEmail || 'support@medicare.com'}`} className="hover:text-primary-400 transition-colors">{settings?.contactEmail || 'support@medicare.com'}</a></li>
+                <li><a href={`tel:${settings?.contactPhone || '+1 (555) 000-0000'}`} className="hover:text-primary-400 transition-colors">{settings?.contactPhone || '+1 (555) 000-0000'}</a></li>
               </ul>
             </div>
           </div>

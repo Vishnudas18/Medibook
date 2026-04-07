@@ -23,6 +23,8 @@ import {
   Info 
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import ReviewList from '@/components/doctor/ReviewList';
+import StarRating from '@/components/shared/StarRating';
 
 export default function DoctorProfilePage() {
   const { id } = useParams();
@@ -98,10 +100,12 @@ export default function DoctorProfilePage() {
               <div className="flex-1 space-y-4">
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                   <h1 className="text-3xl font-bold text-slate-900">Dr. {doctorUser.name}</h1>
-                  <Badge className="bg-primary-50 text-primary-700 border-none px-3 py-1 font-bold flex gap-1.5 items-center">
-                    <ShieldCheck className="w-4 h-4" />
-                    Verified Provider
-                  </Badge>
+                  {doctor.status === 'approved' && (
+                    <Badge className="bg-primary-50 text-primary-700 border-none px-3 py-1 font-bold flex gap-1.5 items-center shadow-sm">
+                      <ShieldCheck className="w-4 h-4 fill-primary-600/10" />
+                      Verified Provider
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-3">
@@ -109,9 +113,10 @@ export default function DoctorProfilePage() {
                     <Stethoscope className="w-5 h-5 text-primary-600" />
                     {doctor.specialization}
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600 font-semibold">
-                    <Star className="w-5 h-5 text-amber-500 fill-current" />
-                    {doctor.rating} ({doctor.totalRatings}+ Ratings)
+                  <div className="flex items-center gap-2 text-slate-600 font-semibold bg-amber-50/50 px-3 py-1 rounded-xl border border-amber-100/50 shadow-sm">
+                    <Star className="w-4 h-4 text-amber-500 fill-current" />
+                    <span className="text-amber-700 font-black">{doctor.rating?.toFixed(1) || '0.0'}</span>
+                    <span className="text-slate-400 text-xs font-medium border-l border-slate-200 pl-2">({doctor.totalRatings || 0} reviews)</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600 font-semibold">
                     <Award className="w-5 h-5 text-slate-400" />
@@ -160,6 +165,22 @@ export default function DoctorProfilePage() {
               </div>
             </div>
           </section>
+
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-2xl font-bold text-slate-900 border-none pb-0">Patient Reviews</h2>
+              <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl text-xs font-bold border border-emerald-100 flex items-center gap-1.5 shadow-sm">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                {doctor.totalRatings || 0} Verified Feedback
+              </div>
+            </div>
+            
+            <ReviewList 
+              doctorId={doctor._id} 
+              averageRating={doctor.rating || 0} 
+              totalReviews={doctor.totalRatings || 0} 
+            />
+          </div>
         </div>
 
         {/* Booking Sidebar */}

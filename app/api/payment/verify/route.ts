@@ -53,9 +53,8 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // 2. Create Payment Document
-    const amountInPaise = await DoctorProfile.findById(appointmentData.doctorId)
-      .select('consultationFee')
-      .then(d => (d?.consultationFee || 0) * 100);
+    const doctorProfile = await DoctorProfile.findById(appointmentData.doctorId).select('consultationFee').lean();
+    const amountInPaise = (doctorProfile?.consultationFee || 0) * 100;
 
     const payment = await Payment.create({
       patientId: user.userId,
@@ -69,10 +68,13 @@ export async function POST(request: NextRequest) {
     });
 
     // 3. Create Appointment Document
+    const [year, month, day] = appointmentData.date.split('-').map(Number);
+    const appointmentDate = new Date(year, month - 1, day, 12, 0, 0, 0); // Noon to avoid day flips
+
     const appointment = await Appointment.create({
       patientId: user.userId,
       doctorId: appointmentData.doctorId,
-      date: new Date(appointmentData.date),
+      date: appointmentDate,
       startTime: appointmentData.startTime,
       endTime: appointmentData.endTime,
       reason: appointmentData.reason,
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     if (patientDoc && doctorProfileDoc) {
       const doctorUser = (doctorProfileDoc.userId as any);
-      const dateFormatted = format(new Date(appointmentData.date), 'PPP');
+      const dateFormatted = format(appointmentDate, 'PPP');
 
       try {
         // To Patient

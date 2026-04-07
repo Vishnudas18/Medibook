@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="admin" />
-      <main className="flex-1 lg:ml-0"><div className="p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto">{children}</div></main>
+      <main className="flex-1"><div className="p-4 sm:p-8 lg:p-10 max-w-7xl mx-auto animate-fade-in">{children}</div></main>
     </div>
   );
 }

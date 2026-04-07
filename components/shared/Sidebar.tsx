@@ -20,6 +20,11 @@ import {
   ClipboardList,
   UserCog,
   BarChart3,
+  Pill,
+  CreditCard,
+  Activity,
+  Settings,
+  FileText,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserRole } from '@/types';
@@ -35,10 +40,14 @@ const navItems: Record<UserRole, NavItem[]> = {
     { label: 'Home', href: '/patient/dashboard', icon: LayoutDashboard },
     { label: 'Find Doctors', href: '/patient/doctors', icon: Search },
     { label: 'My Appointments', href: '/patient/appointments', icon: CalendarDays },
+    { label: 'Prescriptions', href: '/patient/prescriptions', icon: Pill },
+    { label: 'Health Vault', href: '/patient/vault', icon: FileText },
+    { label: 'Payments', href: '/patient/payments', icon: CreditCard },
     { label: 'Profile', href: '/patient/profile', icon: UserCircle },
   ],
   doctor: [
     { label: 'Dashboard', href: '/doctor/dashboard', icon: LayoutDashboard },
+    { label: 'Analytics', href: '/doctor/analytics', icon: BarChart3 },
     { label: 'My Schedule', href: '/doctor/schedule', icon: Calendar },
     { label: 'Patients', href: '/doctor/patients', icon: Users },
     { label: 'Leave', href: '/doctor/leave', icon: CalendarOff },
@@ -49,6 +58,8 @@ const navItems: Record<UserRole, NavItem[]> = {
     { label: 'Doctor Approvals', href: '/admin/doctors', icon: Shield },
     { label: 'Appointments', href: '/admin/appointments', icon: ClipboardList },
     { label: 'Users', href: '/admin/users', icon: UserCog },
+    { label: 'System Logs', href: '/admin/logs', icon: Activity },
+    { label: 'Site Settings', href: '/admin/settings', icon: Settings },
   ],
 };
 

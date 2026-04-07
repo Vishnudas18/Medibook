@@ -4,8 +4,20 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { ApiResponse } from '@/types';
 
 export default function HomeHero() {
+  const { data: settings } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const { data } = await axios.get<ApiResponse<any>>('/api/admin/settings');
+      return data.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
   return (
     <section className="relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,15 +25,11 @@ export default function HomeHero() {
           {/* Text Content */}
           <div className="space-y-10 animate-fade-in">
             <div className="space-y-6">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-                We help patients <br />
-                live a <span className="text-primary-600">healthy, <br /> longer life.</span>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight whitespace-pre-wrap">
+                 {settings?.heroTitle || 'We help patients live a healthy, longer life.'}
               </h1>
-              <p className="text-lg text-slate-500 max-w-xl leading-relaxed">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ratione qui
-                aspernatur culpa. Dolores fugit ea corrupti officiis consequatur!
-                Distinctio eum in dolorum inventore, odit unde explicabo at vitae
-                rerum reprehenderit.
+              <p className="text-lg text-slate-500 max-w-xl leading-relaxed whitespace-pre-wrap">
+                 {settings?.heroSubtitle || 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ratione qui aspernatur culpa. Dolores fugit ea corrupti officiis consequatur!'}
               </p>
             </div>
 

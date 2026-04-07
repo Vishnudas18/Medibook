@@ -133,11 +133,11 @@ export default function DoctorSearchFilters({ onFilterChange, isLoading }: Filte
         </div>
       </div>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex flex-col sm:flex-row justify-end pt-4 gap-3">
         <Button 
           onClick={handleApply} 
           disabled={isLoading}
-          className="rounded-xl px-8 font-bold bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/25 transition-all active:scale-95"
+          className="w-full sm:w-auto rounded-xl px-12 font-bold bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/25 transition-all active:scale-95 h-12"
         >
           {isLoading ? 'Searching...' : 'Search Doctors'}
         </Button>

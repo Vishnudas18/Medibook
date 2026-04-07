@@ -95,73 +95,80 @@ export default function ApprovalRow({ doctor }: ApprovalRowProps) {
       </TableCell>
       
       <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          {doctor.status === 'pending' ? (
-            <>
+        <div className="flex items-center justify-end gap-3 flex-wrap">
+          {/* Always show Details for transparency */}
+          <Dialog>
+             <DialogTrigger asChild>
+               <Button variant="ghost" size="sm" className="h-9 rounded-xl text-slate-400 hover:text-primary-600 hover:bg-primary-50 font-bold">
+                 <Eye className="w-4 h-4 mr-2" /> Details
+               </Button>
+             </DialogTrigger>
+             <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden max-w-[500px]">
+                <div className="bg-slate-900 p-8 text-white">
+                   <div className="flex items-center gap-4 mb-6">
+                     <Avatar className="h-16 w-16 border-2 border-white/20">
+                       <AvatarImage src={user.avatar} />
+                       <AvatarFallback className="text-2xl font-bold">{user.name?.[0]}</AvatarFallback>
+                     </Avatar>
+                     <div>
+                       <DialogTitle className="text-2xl font-bold font-heading">Dr. {user.name}</DialogTitle>
+                       <p className="text-slate-400">{doctor.specialization}</p>
+                     </div>
+                   </div>
+                </div>
+                <div className="p-8 space-y-6 bg-white">
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                         <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Experience</p>
+                         <p className="font-bold text-slate-800">{doctor.experience} Years</p>
+                      </div>
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                         <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Consultation Fee</p>
+                         <p className="font-bold text-slate-800 font-mono">₹{doctor.consultationFee}</p>
+                      </div>
+                   </div>
+                   <div className="space-y-2">
+                     <p className="text-[10px] uppercase font-bold text-slate-400">Clinic Address</p>
+                     <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
+                       {doctor.clinicName}, {doctor.address}, {doctor.city}
+                     </p>
+                   </div>
+                   <div className="space-y-2">
+                     <p className="text-[10px] uppercase font-bold text-slate-400">Qualifications</p>
+                     <div className="flex flex-wrap gap-2">
+                       {doctor.qualifications.map(q => <Badge key={q} variant="secondary" className="rounded-lg">{q}</Badge>)}
+                     </div>
+                   </div>
+                </div>
+             </DialogContent>
+          </Dialog>
+
+          {/* Contextual Approval Actions */}
+          <div className="flex items-center gap-2">
+            {doctor.status !== 'approved' && (
               <Button 
                 onClick={() => setIsApproveDialogOpen(true)}
                 variant="outline" 
                 size="sm" 
                 className="h-9 rounded-xl border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold"
               >
-                <CheckCircle2 className="w-4 h-4 mr-2" /> Approve
+                <CheckCircle2 className="w-4 h-4 md:mr-2" /> 
+                <span className="hidden md:inline">Approve</span>
               </Button>
+            )}
+            
+            {doctor.status !== 'rejected' && (
               <Button 
                 onClick={() => setIsRejectDialogOpen(true)}
                 variant="outline" 
                 size="sm" 
                 className="h-9 rounded-xl border-red-100 bg-red-50 text-red-700 hover:bg-red-100 font-bold"
               >
-                <XCircle className="w-4 h-4 mr-2" /> Reject
+                <XCircle className="w-4 h-4 md:mr-2" /> 
+                <span className="hidden md:inline">Reject</span>
               </Button>
-            </>
-          ) : (
-             <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-9 rounded-xl text-slate-400 hover:text-primary-600 hover:bg-primary-50 font-bold">
-                    <Eye className="w-4 h-4 mr-2" /> Details
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden max-w-[500px]">
-                   <div className="bg-slate-900 p-8 text-white">
-                      <div className="flex items-center gap-4 mb-6">
-                        <Avatar className="h-16 w-16 border-2 border-white/20">
-                          <AvatarImage src={user.avatar} />
-                          <AvatarFallback className="text-2xl font-bold">{user.name?.[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-2xl font-bold">Dr. {user.name}</h3>
-                          <p className="text-slate-400">{doctor.specialization}</p>
-                        </div>
-                      </div>
-                   </div>
-                   <div className="p-8 space-y-6 bg-white">
-                      <div className="grid grid-cols-2 gap-4">
-                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Experience</p>
-                            <p className="font-bold text-slate-800">{doctor.experience} Years</p>
-                         </div>
-                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Consultation Fee</p>
-                            <p className="font-bold text-slate-800 font-mono">₹{doctor.consultationFee}</p>
-                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-[10px] uppercase font-bold text-slate-400">Clinic Address</p>
-                        <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
-                          {doctor.clinicName}, {doctor.address}, {doctor.city}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-[10px] uppercase font-bold text-slate-400">Qualifications</p>
-                        <div className="flex flex-wrap gap-2">
-                          {doctor.qualifications.map(q => <Badge key={q} variant="secondary" className="rounded-lg">{q}</Badge>)}
-                        </div>
-                      </div>
-                   </div>
-                </DialogContent>
-             </Dialog>
-          )}
+            )}
+          </div>
         </div>
       </TableCell>
 

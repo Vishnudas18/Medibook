@@ -148,8 +148,8 @@ export default function BookingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
-        <div className="gradient-primary p-8 text-white relative overflow-hidden">
+      <DialogContent className="sm:max-w-[480px] w-[95vw] rounded-[2rem] sm:rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="gradient-primary p-6 sm:p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
             <DialogHeader>
               <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4">
@@ -165,7 +165,7 @@ export default function BookingModal({
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-6 sm:p-8 space-y-6">
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-slate-600">
