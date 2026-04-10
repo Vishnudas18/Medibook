@@ -68,11 +68,17 @@ export async function GET(request: NextRequest) {
 
     const monthlyRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
 
-    // 4. Today's Detailed Appointments
+    // 4. Total Consultations (All-time completed)
+    const totalConsultations = await Appointment.countDocuments({
+      doctorId,
+      status: 'completed'
+    });
+
+    // 5. Today's Detailed Appointments
     const todayAppointments = await Appointment.find({
       doctorId,
       date: { $gte: startOfToday, $lte: endOfToday },
-      status: { $in: ['confirmed', 'completed'] }
+      status: { $ne: 'cancelled' }
     })
     .sort({ startTime: 1 })
     .populate('patientId', 'name email image')
@@ -85,6 +91,7 @@ export async function GET(request: NextRequest) {
           todayPatients: todayPatientsCount,
           weekPatients: weekAppointmentsCount,
           monthlyRevenue,
+          totalConsultations,
           avgRating: doctorProfile.rating || 0
         },
         todayAppointments

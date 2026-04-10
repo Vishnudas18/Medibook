@@ -8,9 +8,10 @@ import { getAuthUser } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getAuthUser(request);
     if (!user || user.role !== 'doctor') {
       return Response.json(
@@ -29,7 +30,7 @@ export async function GET(
       );
     }
 
-    const patientId = params.id;
+    const patientId = id;
 
     // Verify patient has booked with this doctor before
     const hasBooked = await Appointment.exists({ doctorId: doctorProfile._id, patientId });
