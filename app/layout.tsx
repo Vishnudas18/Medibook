@@ -4,6 +4,7 @@ import Providers from "@/components/Providers";
 import Script from "next/script";
 import { Toaster } from 'sonner';
 import "./globals.css";
+import CommandPalette from "@/components/shared/CommandPalette";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers>
+          <CommandPalette />
+          {children}
+        </Providers>
         <Toaster richColors position="top-right" />
         <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       </body>

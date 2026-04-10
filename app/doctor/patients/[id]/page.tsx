@@ -4,7 +4,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ApiResponse } from '@/types';
-import PageHeader from '@/components/shared/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +21,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ClinicalPulse from '@/components/doctor/ClinicalPulse';
 
 export default function PatientHistoryPage() {
   const params = useParams();
@@ -76,7 +76,7 @@ export default function PatientHistoryPage() {
             <ArrowLeft className="w-4 h-4" /> Back to List
           </Button>
           <div className="flex items-center gap-6">
-             <div className="w-20 h-20 rounded-full gradient-primary shadow-lg flex items-center justify-center border-4 border-white">
+             <div className="w-20 h-20 rounded-full bg-primary-600 shadow-lg flex items-center justify-center border-4 border-white">
                 <span className="text-3xl font-black text-white">{patient.name[0]}</span>
              </div>
              <div>
@@ -98,7 +98,13 @@ export default function PatientHistoryPage() {
         </div>
       </div>
 
-      <div className="space-y-8">
+      {/* Innovation: Section 2 - Clinical Pulse */}
+      <div>
+         <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] pl-1 mb-6">Proactive Clinical Insights</h3>
+         <ClinicalPulse history={history} patient={patient} />
+      </div>
+
+      <div className="space-y-8 pt-6">
         <h3 className="text-xl font-bold text-slate-900 flex items-center gap-3">
            <ClipboardList className="w-6 h-6 text-primary-600" />
            Consultation Timeline

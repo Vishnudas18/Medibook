@@ -22,9 +22,8 @@ import {
   ChevronLeft,
   Info 
 } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 import ReviewList from '@/components/doctor/ReviewList';
-import StarRating from '@/components/shared/StarRating';
+import SymptomSelector from '@/components/patient/SymptomSelector';
 
 export default function DoctorProfilePage() {
   const { id } = useParams();
@@ -48,7 +47,7 @@ export default function DoctorProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8 animate-pulse">
+      <div className="space-y-8 animate-pulse p-4">
         <div className="h-48 w-full bg-slate-100 rounded-3xl" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
@@ -73,11 +72,11 @@ export default function DoctorProfilePage() {
   const doctorUser = doctor.userId as any;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       {/* Header / Nav */}
       <button 
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors font-semibold group"
+        className="flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors font-semibold group mt-4 px-2"
       >
         <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
         Back to search
@@ -185,7 +184,7 @@ export default function DoctorProfilePage() {
 
         {/* Booking Sidebar */}
         <div className="space-y-8 sticky top-24">
-          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl ring-1 ring-primary-500/5">
+          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl ring-1 ring-primary-500/5 overflow-hidden">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-bold text-slate-900">Book Slot</h2>
               <div className="text-right">
@@ -203,19 +202,11 @@ export default function DoctorProfilePage() {
             />
 
             {selectedSlot && (
-              <div className="mt-8 space-y-6 animate-fade-in">
-                <div className="space-y-3">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Info className="w-4 h-4 text-primary-500" />
-                    Reason for visit (optional)
-                  </label>
-                  <Textarea 
-                    placeholder="Briefly describe your symptoms..."
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="min-h-[100px] rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white resize-none"
-                  />
-                </div>
+              <div className="mt-8 space-y-6 animate-fade-in border-t border-slate-50 pt-8">
+                <SymptomSelector 
+                  specialization={doctor.specialization} 
+                  onChange={setReason} 
+                />
 
                 <Button 
                   onClick={() => setIsBookingModalOpen(true)}
