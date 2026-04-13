@@ -24,14 +24,16 @@ const posts = [
   },
   {
      id: 3,
-     title: "Cardvascular Health: What You Should Know",
+     title: "Cardiovascular Health: What You Should Know",
      excerpt: "Exploring the daily habits that significantly impact your heart health and longevity.",
      category: "Cardiology",
      author: "Dr. Arvind Gupta",
      date: "March 28, 2026",
-     image: "https://images.unsplash.com/photo-1505751172107-16d6fbaf29d7?auto=format&fit=crop&q=80&w=800",
+     image: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=800",
   }
 ];
+
+
 
 export default function HomeBlog() {
   return (

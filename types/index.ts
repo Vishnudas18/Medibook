@@ -55,6 +55,10 @@ export interface IDoctorProfile {
   createdAt: Date;
 }
 
+export interface IDoctorProfileWithUser extends IDoctorProfile {
+  userId: IUser;
+}
+
 export interface IAvailability {
   _id: string;
   doctorId: string | IDoctorProfile;
@@ -254,4 +258,32 @@ export interface SlotPickerProps {
   onDateChange: (date: Date | undefined) => void;
   onSlotSelect: (slot: TimeSlot) => void;
   selectedSlot: TimeSlot | null;
+}
+
+// ========================
+// Triage Innovation Types
+// ========================
+
+export type TriageUrgency = 'low' | 'medium' | 'high';
+
+export interface ISymptomAssessment {
+  _id: string;
+  patientId: string;
+  symptoms: string[];
+  durationDays: number;
+  severity: number;
+  notes?: string;
+  preferredCity?: string;
+  preferredLanguage?: string;
+  recommendedSpecialization: string;
+  urgencyLevel: TriageUrgency;
+  aiSummary: string;
+  createdAt: Date;
+}
+
+export interface ITriageDoctorRecommendation {
+  doctorId: string;
+  score: number;
+  reasons: string[];
+  doctor: IDoctorProfileWithUser;
 }

@@ -157,16 +157,17 @@ export default function HomePage() {
             <div className="text-left">
               <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Services</h4>
               <ul className="space-y-4 text-sm">
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">Cancer Care</Link></li>
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">Heart & Vascular</Link></li>
-                <li><Link href="#" className="hover:text-primary-400 transition-colors">Mental Health</Link></li>
+                <li><Link href="#services" className="hover:text-primary-400 transition-colors">Medical Services</Link></li>
+                <li><Link href="/patient/doctors" className="hover:text-primary-400 transition-colors">Find a Doctor</Link></li>
+                <li><Link href="/login" className="hover:text-primary-400 transition-colors">Patient Login</Link></li>
               </ul>
             </div>
             <div className="text-left">
-              <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact Us</h4>
+              <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Specialized Portals</h4>
               <ul className="space-y-4 text-sm font-medium">
-                <li><a href={`mailto:${settings?.contactEmail || 'support@medicare.com'}`} className="hover:text-primary-400 transition-colors">{settings?.contactEmail || 'support@medicare.com'}</a></li>
-                <li><a href={`tel:${settings?.contactPhone || '+1 (555) 000-0000'}`} className="hover:text-primary-400 transition-colors">{settings?.contactPhone || '+1 (555) 000-0000'}</a></li>
+                <li><Link href="/login" className="hover:text-primary-400 transition-colors">Doctor Portal Login</Link></li>
+                <li><Link href="/doctor-register" className="hover:text-primary-400 transition-colors">Join as a Doctor</Link></li>
+                <li><Link href="/login" className="hover:text-primary-400 transition-colors">Admin Portal Login</Link></li>
               </ul>
             </div>
           </div>

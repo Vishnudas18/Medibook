@@ -44,8 +44,8 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
               </h3>
               {isVerified && (
                 <Badge className="bg-primary-50 text-primary-700 border-primary-100 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm shrink-0">
-                   <ShieldCheck className="w-3 h-3 fill-primary-600/10" />
-                   <span className="text-[10px] font-black tracking-widest">VERIFIED</span>
+                  <ShieldCheck className="w-3 h-3 fill-primary-600/10" />
+                  <span className="text-[10px] font-black tracking-widest">VERIFIED</span>
                 </Badge>
               )}
             </div>

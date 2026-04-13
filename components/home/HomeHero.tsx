@@ -37,6 +37,9 @@ export default function HomeHero() {
               <Button asChild className="h-14 px-8 rounded-full bg-primary-600 hover:bg-primary-700 text-lg font-bold shadow-xl shadow-primary-500/25 transition-all hover:-translate-y-1">
                 <Link href="/register">Request an Appointment</Link>
               </Button>
+              <Button asChild variant="outline" className="h-14 px-8 rounded-full border-2 border-slate-200 hover:border-primary-600 hover:text-primary-600 text-lg font-bold transition-all hover:-translate-y-1">
+                <Link href="/patient/doctors">Find a Doctor</Link>
+              </Button>
             </div>
 
             {/* Stats */}

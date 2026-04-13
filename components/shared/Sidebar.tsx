@@ -25,6 +25,7 @@ import {
   Activity,
   Settings,
   FileText,
+  Brain,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserRole } from '@/types';
@@ -39,6 +40,7 @@ const navItems: Record<UserRole, NavItem[]> = {
   patient: [
     { label: 'Home', href: '/patient/dashboard', icon: LayoutDashboard },
     { label: 'Find Doctors', href: '/patient/doctors', icon: Search },
+    { label: 'AI Triage', href: '/patient/triage', icon: Brain },
     { label: 'My Appointments', href: '/patient/appointments', icon: CalendarDays },
     { label: 'Prescriptions', href: '/patient/prescriptions', icon: Pill },
     { label: 'Health Vault', href: '/patient/vault', icon: FileText },
