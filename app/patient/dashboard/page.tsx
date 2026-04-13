@@ -6,11 +6,15 @@ import Link from 'next/link';
 import { CalendarDays, Search, UserCircle, ArrowRight, Activity, TrendingUp, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import { ApiResponse, ISmartDoctorRecommendation } from '@/types';
+import { Badge } from '@/components/ui/badge';
 
 export default function PatientDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<ISmartDoctorRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [recommendationLoading, setRecommendationLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
@@ -27,8 +31,23 @@ export default function PatientDashboard() {
       }
     }
 
+    async function fetchRecommendations() {
+      try {
+        const res = await fetch('/api/patient/recommendations');
+        const data: ApiResponse<ISmartDoctorRecommendation[]> = await res.json();
+        if (data.success && data.data) {
+          setRecommendations(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch recommendations:', error);
+      } finally {
+        setRecommendationLoading(false);
+      }
+    }
+
     if (user) {
       fetchStats();
+      fetchRecommendations();
     }
   }, [user]);
 
@@ -98,6 +117,75 @@ export default function PatientDashboard() {
             <div className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:gap-2 transition-all">Go <ArrowRight className="w-4 h-4" /></div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-slate-900">Smart Doctor Recommendations</h2>
+          <Link href="/patient/doctors" className="text-sm font-medium text-primary-600 hover:underline">
+            View all doctors
+          </Link>
+        </div>
+
+        {recommendationLoading ? (
+          <p className="text-sm text-slate-500">Loading recommendations...</p>
+        ) : recommendations.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {recommendations.map((item) => (
+              <div
+                key={item.doctorId}
+                className="p-5 bg-white rounded-2xl border border-slate-200 hover:border-primary-200 transition-all"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Dr. {item.doctor.userId.name}
+                    </h3>
+                    <p className="text-sm text-slate-500">
+                      {item.doctor.specialization} - {item.doctor.city}
+                    </p>
+                  </div>
+                  <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    Score {Math.round(item.score)}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {item.availableToday && (
+                    <Badge className="bg-blue-50 text-blue-700 border border-blue-100">
+                      Available today
+                    </Badge>
+                  )}
+                  {item.pastBookings > 0 && (
+                    <Badge className="bg-primary-50 text-primary-700 border border-primary-100">
+                      {item.pastBookings} past booking(s)
+                    </Badge>
+                  )}
+                  <Badge className="bg-amber-50 text-amber-700 border border-amber-100">
+                    {item.doctor.rating?.toFixed(1) || '0.0'} rating
+                  </Badge>
+                </div>
+
+                <ul className="mt-3 space-y-1 text-xs text-slate-600">
+                  {item.reasons.map((reason) => (
+                    <li key={reason}>- {reason}</li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={`/patient/doctors/${item.doctorId}`}
+                  className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 hover:underline"
+                >
+                  Book this doctor <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">
+            No personalized recommendations yet. Book your first appointment to unlock smart suggestions.
+          </p>
+        )}
       </div>
     </div>
   );

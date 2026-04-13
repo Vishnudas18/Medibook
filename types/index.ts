@@ -287,3 +287,12 @@ export interface ITriageDoctorRecommendation {
   reasons: string[];
   doctor: IDoctorProfileWithUser;
 }
+
+export interface ISmartDoctorRecommendation {
+  doctorId: string;
+  score: number;
+  reasons: string[];
+  availableToday: boolean;
+  pastBookings: number;
+  doctor: IDoctorProfileWithUser;
+}
