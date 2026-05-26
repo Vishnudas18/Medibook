@@ -32,7 +32,7 @@ const protectedApiRoutes: Record<string, string[]> = {
   '/api/appointments/doctor': ['doctor'],
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip public routes

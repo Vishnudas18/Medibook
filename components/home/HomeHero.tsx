@@ -19,12 +19,12 @@ export default function HomeHero() {
   });
 
   return (
-    <section className="relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-32 bg-white">
+    <section className="relative overflow-hidden pt-4 pb-12 lg:pt-8 lg:pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           {/* Text Content */}
-          <div className="space-y-10 animate-fade-in">
-            <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in">
+            <div className="space-y-4">
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight whitespace-pre-wrap">
                  {settings?.heroTitle || 'We help patients live a healthy, longer life.'}
               </h1>
@@ -43,7 +43,7 @@ export default function HomeHero() {
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-12 pt-4">
+            <div className="flex items-center gap-8 pt-2">
               <div>
                 <div className="text-4xl font-extrabold text-slate-900 leading-none">30+</div>
                 <div className="w-12 h-1.5 bg-accent-yellow rounded-full mt-2 mb-3" />

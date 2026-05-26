@@ -19,7 +19,7 @@ import {
   History,
   Activity
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -76,6 +76,7 @@ export default function CommandPalette() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden bg-white/70 backdrop-blur-2xl border-white/20 shadow-[0_50px_100px_-20px_rgba(15,23,42,0.25)] rounded-[2.5rem] animate-in zoom-in-95 duration-300">
+        <span className="sr-only"><DialogTitle>MediBook Navigation Search</DialogTitle></span>
         <div className="flex flex-col h-[600px]">
           {/* Header Search Field */}
           <div className="relative border-b border-slate-100 px-8 py-8">

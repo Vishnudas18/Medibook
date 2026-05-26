@@ -5,188 +5,230 @@ import { IDoctorProfile, IUser, ApiResponse } from '@/types';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  Eye, 
-  MapPin, 
-  Award, 
-  ExternalLink,
-  ClipboardCheck,
-  ShieldAlert
+import {
+  CheckCircle2,
+  XCircle,
+  Eye,
+  MapPin,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface ApprovalRowProps {
   doctor: IDoctorProfile & { userId: IUser };
 }
 
+const STATUS_MAP = {
+  pending:  { label: 'Pending',  cls: 'bg-amber-50  text-amber-600  border border-amber-200' },
+  approved: { label: 'Active',   cls: 'bg-emerald-50 text-emerald-600 border border-emerald-200' },
+  rejected: { label: 'Rejected', cls: 'bg-red-50    text-red-600    border border-red-200' },
+} as const;
+
 export default function ApprovalRow({ doctor }: ApprovalRowProps) {
   const queryClient = useQueryClient();
   const user = doctor.userId as any;
-  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [isApproveOpen, setIsApproveOpen] = useState(false);
+  const [isRejectOpen,  setIsRejectOpen]  = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async ({ status, reason }: { status: 'approved' | 'rejected', reason?: string }) => {
-      const { data } = await axios.patch<ApiResponse<any>>(`/api/admin/doctors/${doctor._id}/approve`, {
-        status,
-        reason,
-      });
+    mutationFn: async ({ status, reason }: { status: 'approved' | 'rejected'; reason?: string }) => {
+      const { data } = await axios.patch<ApiResponse<any>>(
+        `/api/admin/doctors/${doctor._id}/approve`,
+        { status, reason }
+      );
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-doctors'] });
-      setIsApproveDialogOpen(false);
-      setIsRejectDialogOpen(false);
+      setIsApproveOpen(false);
+      setIsRejectOpen(false);
     },
   });
 
+  const statusStyle = STATUS_MAP[doctor.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.pending;
+
   return (
-    <TableRow className="group transition-all hover:bg-slate-50/50">
-      <TableCell className="py-6">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-12 w-12 border border-slate-100 shadow-sm">
+    <TableRow className="group border-slate-100 transition-colors hover:bg-slate-50/70">
+
+      {/* Doctor Details */}
+      <TableCell className="py-4 pl-6">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 flex-shrink-0 border border-slate-200 shadow-sm">
             <AvatarImage src={user.avatar} />
-            <AvatarFallback className="bg-primary-50 text-primary-700 font-bold">
+            <AvatarFallback className="bg-primary-50 text-primary-700 text-sm font-bold">
               {user.name?.[0]}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-bold text-slate-900 group-hover:text-primary-700 transition-colors">Dr. {user.name}</p>
-            <p className="text-xs text-slate-400 font-medium">{user.email}</p>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">
+              Dr. {user.name}
+            </p>
+            <p className="truncate text-xs text-slate-400">{user.email}</p>
           </div>
         </div>
       </TableCell>
-      
-      <TableCell>
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-bold text-slate-700">{doctor.specialization}</p>
-          <div className="flex flex-wrap gap-1">
-             {doctor.qualifications.slice(0, 2).map((q, i) => (
-                <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0 border-slate-200 bg-white text-slate-500">{q}</Badge>
-             ))}
-          </div>
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        <div className="flex items-center gap-2 text-slate-500 font-medium">
-          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-sm">{doctor.city}</span>
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        <Badge 
-          className={cn(
-            "rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wider",
-            doctor.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-            doctor.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-            'bg-red-50 text-red-600 border-red-100'
+
+      {/* Specialization */}
+      <TableCell className="py-4">
+        <div>
+          <p className="text-sm font-medium text-slate-700">{doctor.specialization}</p>
+          {doctor.qualifications?.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {doctor.qualifications.slice(0, 2).map((q, i) => (
+                <span
+                  key={i}
+                  className="inline-flex rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500"
+                >
+                  {q}
+                </span>
+              ))}
+            </div>
           )}
-        >
-          {doctor.status}
-        </Badge>
+        </div>
       </TableCell>
-      
-      <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-3 flex-wrap">
-          {/* Always show Details for transparency */}
+
+      {/* Location */}
+      <TableCell className="py-4">
+        <div className="flex items-center gap-1.5 text-slate-500">
+          <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-slate-400" />
+          <span className="text-sm">{doctor.city || '—'}</span>
+        </div>
+      </TableCell>
+
+      {/* Status */}
+      <TableCell className="py-4">
+        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyle.cls}`}>
+          {statusStyle.label}
+        </span>
+      </TableCell>
+
+      {/* Actions */}
+      <TableCell className="py-4 pr-6">
+        <div className="flex items-center justify-end gap-2">
+
+          {/* Details dialog */}
           <Dialog>
-             <DialogTrigger asChild>
-               <Button variant="ghost" size="sm" className="h-9 rounded-xl text-slate-400 hover:text-primary-600 hover:bg-primary-50 font-bold">
-                 <Eye className="w-4 h-4 mr-2" /> Details
-               </Button>
-             </DialogTrigger>
-             <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden max-w-[500px]">
-                <div className="bg-slate-900 p-8 text-white">
-                   <div className="flex items-center gap-4 mb-6">
-                     <Avatar className="h-16 w-16 border-2 border-white/20">
-                       <AvatarImage src={user.avatar} />
-                       <AvatarFallback className="text-2xl font-bold">{user.name?.[0]}</AvatarFallback>
-                     </Avatar>
-                     <div>
-                       <DialogTitle className="text-2xl font-bold font-heading">Dr. {user.name}</DialogTitle>
-                       <p className="text-slate-400">{doctor.specialization}</p>
-                     </div>
-                   </div>
+            <DialogTrigger asChild>
+              <Button
+                id={`view-doctor-${doctor._id}`}
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5 rounded-lg px-3 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Details
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="overflow-hidden rounded-2xl border-0 p-0 shadow-2xl max-w-md">
+              {/* Header */}
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-8 py-7">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-14 w-14 border-2 border-white/20">
+                    <AvatarImage src={user.avatar} />
+                    <AvatarFallback className="text-xl font-bold text-white bg-white/10">
+                      {user.name?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <DialogTitle className="text-xl font-bold text-white">Dr. {user.name}</DialogTitle>
+                    <p className="text-sm text-slate-400">{doctor.specialization}</p>
+                  </div>
                 </div>
-                <div className="p-8 space-y-6 bg-white">
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                         <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Experience</p>
-                         <p className="font-bold text-slate-800">{doctor.experience} Years</p>
-                      </div>
-                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                         <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Consultation Fee</p>
-                         <p className="font-bold text-slate-800 font-mono">₹{doctor.consultationFee}</p>
-                      </div>
-                   </div>
-                   <div className="space-y-2">
-                     <p className="text-[10px] uppercase font-bold text-slate-400">Clinic Address</p>
-                     <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
-                       {doctor.clinicName}, {doctor.address}, {doctor.city}
-                     </p>
-                   </div>
-                   <div className="space-y-2">
-                     <p className="text-[10px] uppercase font-bold text-slate-400">Qualifications</p>
-                     <div className="flex flex-wrap gap-2">
-                       {doctor.qualifications.map(q => <Badge key={q} variant="secondary" className="rounded-lg">{q}</Badge>)}
-                     </div>
-                   </div>
+              </div>
+
+              {/* Body */}
+              <div className="bg-white px-8 py-6 space-y-5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Experience</p>
+                    <p className="text-base font-bold text-slate-800">{doctor.experience} yrs</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Fee</p>
+                    <p className="text-base font-bold text-slate-800 font-mono">₹{doctor.consultationFee}</p>
+                  </div>
                 </div>
-             </DialogContent>
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Clinic</p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {doctor.clinicName}, {doctor.address}, {doctor.city}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Qualifications</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {doctor.qualifications.map(q => (
+                      <span
+                        key={q}
+                        className="inline-flex rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600"
+                      >
+                        {q}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
           </Dialog>
 
-          {/* Contextual Approval Actions */}
-          <div className="flex items-center gap-2">
-            {doctor.status !== 'approved' && (
-              <Button 
-                onClick={() => setIsApproveDialogOpen(true)}
-                variant="outline" 
-                size="sm" 
-                className="h-9 rounded-xl border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold"
-              >
-                <CheckCircle2 className="w-4 h-4 md:mr-2" /> 
-                <span className="hidden md:inline">Approve</span>
-              </Button>
-            )}
-            
-            {doctor.status !== 'rejected' && (
-              <Button 
-                onClick={() => setIsRejectDialogOpen(true)}
-                variant="outline" 
-                size="sm" 
-                className="h-9 rounded-xl border-red-100 bg-red-50 text-red-700 hover:bg-red-100 font-bold"
-              >
-                <XCircle className="w-4 h-4 md:mr-2" /> 
-                <span className="hidden md:inline">Reject</span>
-              </Button>
-            )}
-          </div>
+          {/* Approve */}
+          {doctor.status !== 'approved' && (
+            <Button
+              id={`approve-doctor-${doctor._id}`}
+              onClick={() => setIsApproveOpen(true)}
+              size="sm"
+              variant="outline"
+              disabled={mutation.isPending}
+              className="h-8 gap-1.5 rounded-lg border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Approve</span>
+            </Button>
+          )}
+
+          {/* Reject */}
+          {doctor.status !== 'rejected' && (
+            <Button
+              id={`reject-doctor-${doctor._id}`}
+              onClick={() => setIsRejectOpen(true)}
+              size="sm"
+              variant="outline"
+              disabled={mutation.isPending}
+              className="h-8 gap-1.5 rounded-lg border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 hover:border-red-300"
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Reject</span>
+            </Button>
+          )}
         </div>
       </TableCell>
 
+      {/* Confirm dialogs */}
       <ConfirmDialog
-        isOpen={isApproveDialogOpen}
-        onOpenChange={setIsApproveDialogOpen}
-        title="Approve Representative?"
-        description={`This will verify Dr. ${user.name} and allow them to start accepting appointments. An email will be sent.`}
+        isOpen={isApproveOpen}
+        onOpenChange={setIsApproveOpen}
+        title="Approve Doctor?"
+        description={`This will verify Dr. ${user.name} and allow them to start accepting appointments. A confirmation email will be sent.`}
         variant="primary"
         confirmText="Confirm Approval"
         onConfirm={() => mutation.mutate({ status: 'approved' })}
       />
-
       <ConfirmDialog
-        isOpen={isRejectDialogOpen}
-        onOpenChange={setIsRejectDialogOpen}
-        title="Reject Credentials?"
-        description="Please provide a reason if you wish, this will be sent to the doctor. They can re-register later."
+        isOpen={isRejectOpen}
+        onOpenChange={setIsRejectOpen}
+        title="Reject Application?"
+        description="The doctor's credentials will be rejected. You can add a reason which will be included in the notification email."
         variant="destructive"
         confirmText="Confirm Rejection"
         onConfirm={() => mutation.mutate({ status: 'rejected', reason: 'Credentials verification failed.' })}
@@ -194,5 +236,3 @@ export default function ApprovalRow({ doctor }: ApprovalRowProps) {
     </TableRow>
   );
 }
-
-const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');

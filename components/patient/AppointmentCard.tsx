@@ -86,8 +86,8 @@ export default function AppointmentCard({
   const canUpdateStatus = userRole === 'doctor' || userRole === 'admin';
 
   return (
-    <Card className="group overflow-hidden rounded-2xl border-slate-200 transition-all duration-300 hover:shadow-md bg-white">
-      <CardContent className="p-0">
+    <Card className="group rounded-2xl border-slate-200 transition-all duration-300 hover:shadow-md bg-white overflow-visible">
+      <CardContent className="p-0 overflow-hidden rounded-2xl">
         <div className="flex flex-col sm:flex-row">
           {/* Status Sidebar (Desktop) / Header (Mobile) */}
           <div className={cn(
@@ -144,34 +144,78 @@ export default function AppointmentCard({
                 {(canCancel || canUpdateStatus) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 transition-colors shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-100 transition-all shrink-0 data-[state=open]:bg-slate-100 data-[state=open]:border-slate-200"
+                      >
                         <MoreVertical className="w-4 h-4 text-slate-400" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-200">
+                    <DropdownMenuContent
+                      align="end"
+                      sideOffset={6}
+                      className="z-50 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+                    >
                       {canUpdateStatus && (
                         <>
                           {status === 'confirmed' ? (
-                            <DropdownMenuItem onClick={() => setIsPrescriptionDialogOpen(true)} className="gap-2 focus:bg-emerald-50 focus:text-emerald-700">
-                              <Pill className="w-4 h-4" /> Issue Prescription
+                            <DropdownMenuItem
+                              onClick={() => setIsPrescriptionDialogOpen(true)}
+                              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:text-emerald-700"
+                            >
+                              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                                <Pill className="h-3.5 w-3.5" />
+                              </span>
+                              Issue Prescription
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem onClick={() => { setTargetStatus('completed'); setIsStatusDialogOpen(true); }} className="gap-2 focus:bg-emerald-50 focus:text-emerald-700">
-                              <CheckCircle2 className="w-4 h-4" /> Mark Completed
+                            <DropdownMenuItem
+                              onClick={() => { setTargetStatus('completed'); setIsStatusDialogOpen(true); }}
+                              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:text-emerald-700"
+                            >
+                              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              </span>
+                              Mark Completed
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem onClick={() => { setTargetStatus('no-show'); setIsStatusDialogOpen(true); }} className="gap-2">
-                            <AlertCircle className="w-4 h-4" /> Mark No Show
+
+                          <DropdownMenuItem
+                            onClick={() => { setTargetStatus('no-show'); setIsStatusDialogOpen(true); }}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-100 focus:bg-slate-100"
+                          >
+                            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-500">
+                              <AlertCircle className="h-3.5 w-3.5" />
+                            </span>
+                            Mark No Show
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => window.location.href = `/doctor/patients/${patient._id}`} className="gap-2">
-                            <FileText className="w-4 h-4" /> View Patient History
+
+                          <DropdownMenuItem
+                            onClick={() => window.location.href = `/doctor/patients/${patient._id}`}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-100 focus:bg-slate-100"
+                          >
+                            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-500">
+                              <FileText className="h-3.5 w-3.5" />
+                            </span>
+                            View Patient History
                           </DropdownMenuItem>
                         </>
                       )}
+
                       {canCancel && (
-                        <DropdownMenuItem onClick={() => setIsCancelDialogOpen(true)} className="gap-2 text-red-600 focus:bg-red-50 focus:text-red-600">
-                          <XCircle className="w-4 h-4" /> Cancel Appointment
-                        </DropdownMenuItem>
+                        <>
+                          {canUpdateStatus && <div className="my-1 h-px bg-slate-100" />}
+                          <DropdownMenuItem
+                            onClick={() => setIsCancelDialogOpen(true)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 cursor-pointer hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
+                          >
+                            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-100 text-red-500">
+                              <XCircle className="h-3.5 w-3.5" />
+                            </span>
+                            Cancel Appointment
+                          </DropdownMenuItem>
+                        </>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
